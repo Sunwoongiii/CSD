@@ -10,7 +10,7 @@ class student{
     string _studentID;
 
   public:
-    Student(){
+    student(){
       _name = "";
       _major = "";
       _studentID = "";
