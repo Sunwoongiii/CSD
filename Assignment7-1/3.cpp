@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#define PI 3.14159265358979323846
+#define PI 3.14
 using namespace std;
 
 class Shape{
@@ -12,7 +12,7 @@ public:
     : name(n),width(w),height(h){}
 
   virtual double getArea(){return 0;}
-  
+
   string getName() const{return name;}
 };
 
@@ -47,7 +47,7 @@ int main(){
   p[2] = new Triangle("Triangle", 30, 40);
 
   for(int i = 0; i < 3; i++){
-    cout<<p[i]->getName()<<"'s area is "<<p[i]->getArea()<<"\n";
+    cout<<p[i]->getName()<<"'s area is "<<p[i]->getArea()<<endl;
   }
   for(int i = 0; i < 3; i++) delete p[i];
 

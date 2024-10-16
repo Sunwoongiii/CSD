@@ -14,13 +14,13 @@ public:
   Converter(double ratio): _ratio(ratio){}
 
   double getRatio() const {return _ratio;}
-  
+
   void run(){
     double src;
-    cout<<"Converter "<<getSrcMetric()<<" to "<<getDestMetric()<<"\n";
+    cout<<"Converter "<<getSrcMetric()<<" to "<<getDestMetric()<<endl;
     cout<<"Input "<<getSrcMetric()<<" : ";
     cin>>src;
-    cout<<"Result: "<<convert(src)<<" "<<getDestMetric()<<"\n";
+    cout<<"Result: "<<convert(src)<<" "<<getDestMetric()<<endl;
   }
 };
 

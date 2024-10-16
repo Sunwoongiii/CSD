@@ -12,7 +12,7 @@ protected:
 public:
   void run(){
     input();
-    cout<<"Answer: "<<calc(a,b)<<"\n";
+    cout<<"Answer: "<<calc(a,b)<<endl;
   }
 };
 
