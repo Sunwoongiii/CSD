@@ -30,13 +30,13 @@ void print_stats(const T& container) {
     for (const auto& num : container) {
         sum += num;
     }
-    double average = sum / container.size();
+    double average = sum / std::distance(container.begin(), container.end());
 
     double variance_sum = 0;
     for (const auto& num : container) {
         variance_sum += std::pow(num - average, 2);
     }
-    double variance = variance_sum / container.size();
+    double variance = variance_sum / std::distance(container.begin(), container.end());
     double std_dev = std::sqrt(variance);
 
     std::cout << "Minimum: " << min_val << std::endl;
