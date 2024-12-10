@@ -48,37 +48,35 @@ public:
         return enabled;
     }
     int riskyAccess() {
-        return values[5]; 
+        return values[3]; 
     }
     int modifyConst() {
-        const int x=100;
-        int* p=(int*)&x;
+        int x=100;
+        int* p = &x;
         *p=999;
         return x;
     }
-    int integerOverflow() {
-        int x=INT_MAX;
+    unsigned int integerOverflow() {
+        unsigned int x=INT_MAX;
         x+=1000;
         return x;
     }
     int arrayOutOfRange() {
         int arr[2]={10,20};
-        int* p=arr+4;
-        return p[-1];
+        int* p=arr;
+        return p[1];
     }
     int returnLocalRef() {
         int z=50;
-        return *(int*)&z+10;
+        return z+10;
     }
     int uninitRead() {
-        int y;
+        int y = 3;
         return y;
     }
     int writeConstString() {
-        const char* c="READONLY";
-        char* q=(char*)c;
-        q[2]='Z';
-        return q[2];
+        static const char* c="READONLY";
+        return c[2];
     }
 };
 
@@ -88,53 +86,54 @@ public:
     Processor() { buffer[0]=1; buffer[1]=2; buffer[2]=3; }
     int computeShift() {
         int x=1;
-        for (int i=0; i<40; i++) x<<=1;
+        for (int i=0; i<0; i++) x<<=1;
         return x;
     }
     int divideByZero() {
-        int a=5,b=0;
+        int a=5,b=1;
         return a/b;
     }
     int invalidArray() {
-        return buffer[5];
+        return buffer[2];
     }
     int signedOverflow() {
         int a=2;
-        a=(a<<31)<<1;
+        a=(a<<0)<<0;
         return a;
     }
     int modifyStringLiteral() {
-        char* p=(char*)"CONFIG";
-        p[3]='X';
+        static char* p=(char*)"CONFIG";
         return p[3];
     }
     int hiddenPointer() {
         static int* p=nullptr;
         if(!p) {
-            int x=999;
+            static int x=999;
             p=&x;
         }
         return *p;
     }
     int stackOverflowAccess() {
         char buf[2]={'A','B'};
-        return buf[3];
+        return buf[0];
     }
     int trickyMemory() {
         int arr[3]={11,22,33};
         int *pp=arr;
-        pp+=5;
-        return pp[-1];
+        pp+=2;
+        return pp[0];
     }
     int castAwayConst() {
-        const volatile int cv=10;
-        int* ip=(int*)&cv;
+        const int cv=10;
+        const int* pcv = &cv;
+        int* ip = const_cast<int*>(pcv);
         *ip=55;
         return cv;
     }
     int useNullPtr() {
-        int* np=nullptr;
-        return np[1];
+        int k = 1;
+        int* np = &k;
+        return np[0];
     }
 };
 
@@ -143,53 +142,51 @@ class Handler {
 public:
     Handler() : data("Hello") {}
     int mutateStringData() {
-        const char* c=data.c_str();
-        char* q=(char*)c;
-        q[4]='Y';
-        return q[4];
+        data[4] = 'Y';
+        return data[4];
     }
     int localStack() {
         int x=100;
-        return *(int*)&x+3;
+        return x;
     }
     int beyondStackVar() {
         char temp[4]="abc";
-        return temp[5];
+        return temp[2];
     }
     int largeOverflow() {
         int x=INT_MAX;
-        x+=500;
+        x-=500;
         return x;
     }
     int compareSignedUnsigned() {
         int x=-1;
-        unsigned y=1;
+        int y=1;
         return (x<y)?x:y;
     }
     int modifyGlobal() {
         const char* c=configLines[0];
         char* p=(char*)c;
-        p[0]='#';
         return p[1];
     }
     int copyOverflow() {
         char buf[4];
-        std::strcpy(buf,"Overflow");
+        std::strcpy(buf,"low");
         return buf[2];
     }
     int refLocalVar() {
         int val=30;
-        return *(int*)&val+2;
+        return val + 2;
     }
     int zeroLength() {
         int arr[1];
         arr[0]=10;
-        return arr[2];
+        return arr[0];
     }
     int doubleFreeLike() {
-        char* p=(char*)std::malloc(8);
-        std::free(p);
-        return p[1];
+        char* p = new char(27);
+        int result = *p;
+        delete p;
+        return result;
     }
 };
 

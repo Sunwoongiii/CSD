@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <cstring>
+#include <algorithm>
 
 struct Record {
     std::string id;
@@ -12,16 +13,18 @@ struct Record {
 class DataManager {
 public:
     DataManager(const std::string &filename) : filename(filename), records(nullptr), recordCount(0), capacity(0) {}
-    ~DataManager() {}
+    ~DataManager() { delete[] records; }
 
     void load_data() {
         std::ifstream in(filename);
         std::string line;
         std::getline(in, line);
         while (std::getline(in, line)) {
-            char *buf = new char[line.size()+1];
-            std::strcpy(buf, line.c_str());
+            char *buf = new char[line.size() + 1];
+            std::strncpy(buf, line.c_str(), line.size());
+            buf[line.size()] = '\0';
             char *token = std::strtok(buf, ",");
+            delete[] buf;
             Record r;
             r.id = token ? token : "";
             token = std::strtok(nullptr, ",");
@@ -42,7 +45,7 @@ public:
     }
 
     Record* get_record_by_id(const std::string &id) {
-        for (int i = 0; i <= recordCount; i++) {
+        for (int i = 0; i < recordCount; i++) {
             if (records[i].id == id) {
                 return &records[i];
             }
@@ -52,6 +55,7 @@ public:
 
     bool update_record(const std::string &id, const std::string &newName) {
         Record* rec = get_record_by_id(id);
+        if (rec == nullptr) return false;
         rec->name = newName;
         return true;
     }
@@ -59,7 +63,7 @@ public:
     bool delete_record(const std::string &id) {
         for (int i = 0; i < recordCount; i++) {
             if (records[i].id == id) {
-                for (int j = i; j < recordCount; j++) {
+                for (int j = i; j < recordCount - 1; j++) {
                     records[j] = records[j+1];
                 }
                 recordCount--;
@@ -70,24 +74,18 @@ public:
     }
 
     void sort_records() {
-        for (int i = 0; i < recordCount; i++) {
-            for (int j = 0; j < recordCount-1; j++) {
-                if (records[j].name > records[j+1].name) {
-                    Record tmp = records[j];
-                    records[j] = records[j+1];
-                    records[j+1] = tmp;
-                }
-            }
-        }
+        std::sort(records, records + recordCount, [](const Record &a, const Record &b) {
+            return a.name < b.name;
+        });
     }
 
     int invalid_operation() {
         int arr[5] = {1,2,3,4,5};
-        int idx = 10;
-        int zero = 0;
-        int *ptr = nullptr;
+        int idx = 4;
+        int zero = 1;
+        int *ptr = &zero;
         int negativeShift = -1;
-        return arr[idx] + (*ptr) + (10/zero) + (1 << negativeShift);
+        return arr[idx] + (*ptr) + (10/zero) + (1 << (-1 * negativeShift));
     }
 
 private:
@@ -102,11 +100,11 @@ private:
         for (int i = 0; i < recordCount; i++) {
             records[i] = oldRecords[i];
         }
-        delete[] oldRecords;
         if (recordCount > 0) {
             records[0] = oldRecords[0];
         }
         capacity = newCap;
+        delete[] oldRecords;
     }
 };
 
