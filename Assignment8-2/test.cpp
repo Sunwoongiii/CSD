@@ -1,41 +1,78 @@
 #include <iostream>
 using namespace std;
 
-class Book{
-  string title;
-  int price, pages;
-
+class Container{
 public:
-  Book(string title = "", int price=0, int pages=0){
-    this->title = title;
-    this->pages = pages;
-    this->price=price;
-  }
-  void show(){
-    cout<<"Book: "<<title<<" "<<price<<" won "<<pages<<" pages\n";
-  }
-  friend bool operator==(const Book& a, const string& s);
-  friend bool operator==(const Book& a, const int& p);
-  friend bool operator==(const Book& a, const Book& b);
+  Container(){}
+  virtual void push_back(int value)=0;
+  virtual void pop_back()=0;
+  virtual int getVectorArr(int index)=0;
+  virtual void setVectorArr(int index, int value)=0;
+  virtual ~Container(){}
 };
 
-bool operator==(const Book& a, const string&s){
-  return a.title == s;
-}
+class MyVector : public Container {
+private:
+    int size;
+    int cnt;
+    int* arr;
+public:
+    MyVector(int s) : size(s), cnt(0) {
+        arr = new int[size];
+    }
 
-bool operator==(const Book& a, const int& p){
-  return a.pages == p;
-}
+    virtual void push_back(int value) override {
+        if (cnt == size) {
+            int* new_arr = new int[size * 2];
+            for (int i = 0; i < size; i++) {
+                new_arr[i] = arr[i];
+            }
+            size *= 2;
+            delete[] arr;
+            arr = new_arr;
+        }
 
-bool operator==(const Book& a, const Book& b){
-  return((a.pages==b.pages) && (a.price==b.price) && (a.title==b.title));
-}
+        arr[cnt] = value;
+        cnt++;
+    }
 
-int main(){
-  Book a("Dune1", 30000, 500), b("Dune2", 30000,500);
-  a.show();
+    virtual void pop_back() override {
+        if (cnt == 0) throw "Nothing to pop\n";
+        cnt--;
+    }
 
-  if(a == "Dune1")cout<<"Dune1"<<'\n';
-  if(a == 500)cout<<30000<<'\n';
-  if(a == b)cout<<"same";
+    virtual int getVectorArr(int index) override {
+        if (index >= 0 && index < cnt) return arr[index];
+        else throw "Out of range error\n";
+    }
+
+    virtual void setVectorArr(int index, int value) override {
+        if (index >= 0 && index < cnt) arr[index] = value;
+        else throw "Out of range error\n";
+    }
+
+    virtual ~MyVector() {
+        delete[] arr;
+    }
+};
+
+int main() { 
+  Container* v = new MyVector(5); 
+  for (int i = 0; i < 10; i++) { 
+      v->push_back(i * 10); 
+  } 
+  try { 
+      v->setVectorArr(11, 20); 
+      cout << v->getVectorArr(10) << endl; 
+  } catch (const char* msg) { 
+      cerr << msg << endl; 
+  } 
+  for (int j = 0; j < 11; j++) { 
+      try { 
+          v->pop_back(); 
+      } catch (const char* msg) { 
+          cerr << msg << endl; 
+      } 
+  } 
+  cout << endl; 
 }
