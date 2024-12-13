@@ -1,50 +1,100 @@
 #include <iostream>
-#include <type_traits>
-#include <string>
+#include <cstring>
+using namespace std;
 
-int add_int(int a, int b) {
-  return a + b;
-}
+class Container {
+public:
+  virtual void push_back(int value) = 0;
+  virtual void pop_back() = 0;
+  virtual int getVectorArr(int index) = 0;
+  virtual void setVectorArr(int index, int value) = 0;
+  virtual ~Container() {}
+};
 
-double add_double(double a, double b) {
-  return a + b;
-}
+class MyVector : public Container {
+private:
+  int* data;
+  int size;
+  int capacity;
 
-template <typename T>
-auto add_any(const T& a, const T& b) -> decltype(a + b) {
-  return a + b;
-}
+  void resize() {
+    capacity *= 2;
+    int* newData = new int[capacity];
+    for (int i = 0; i < size; i++) {
+      newData[i] = data[i];
+    }
+    delete[] data;
+    data = newData;
+  }
+
+public:
+  MyVector(int initialCapacity) : size(0), capacity(initialCapacity) {
+    data = new int[capacity];
+  }
+
+  ~MyVector() {
+    delete[] data;
+  }
+
+  void push_back(int value) override {
+    if (size == capacity) {
+      resize();
+    }
+    data[size++] = value;
+  }
+
+  void pop_back() override {
+    if (size == 0) {
+      throw "nothing to pop";
+    }
+    size--;
+  }
+
+  int getVectorArr(int index) override {
+    if (index < 0 || index >= size) {
+      throw "Out of range error";
+    }
+    return data[index];
+  }
+
+  void setVectorArr(int index, int value) override {
+    if (index < 0 || index >= size) {
+      throw "Out of range error";
+    }
+    data[index] = value;
+  }
+};
 
 int main() {
-  int int_sum = add_int(3, 5);
-  std::cout << "int_sum: " << int_sum << std::endl;
+  Container* v = new MyVector(5);
 
-  double double_sum = add_double(3.14, 2.71);
-  std::cout << "double_sum: " << double_sum << std::endl;
+  for (int i = 0; i < 10; i++) {
+    v->push_back(i * 10);
+  }
 
-  std::string str_sum = add_any(std::string("Hello, "), std::string("World!"));
-  std::cout << "str_sum: " << str_sum << std::endl;
+  try {
+    v->setVectorArr(11, 20); 
+  } catch (const char* msg) {
+    cerr << msg << endl;
+  }
 
-  class Point {
-  private:
-    int x, y;
-
-  public:
-    Point(int x, int y) : x(x), y(y) {}
-
-    Point operator+(const Point& other) const {
-      return Point(x + other.x, y + other.y);
+  for (int i = 9; i >= 0; i--) {
+    try {
+      cout << v->getVectorArr(i) << " ";
+    } catch (const char* msg) {
+      cerr << msg << endl;
     }
+  }
+  cout << endl;
 
-    void print() const {
-      std::cout << "(" << x << ", " << y << ")";
+  for (int j = 0; j < 11; j++) {
+    try {
+      v->pop_back();
+    } catch (const char* msg) {
+      cerr << msg << endl;
     }
-  };
+  }
 
-  Point p1(1, 2), p2(3, 4);
-  Point p_sum = add_any(p1, p2);
-  std::cout << "p_sum: ";
-  p_sum.print();
-
+  delete v;
   return 0;
 }
